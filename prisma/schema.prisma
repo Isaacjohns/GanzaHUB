@@ -1,0 +1,59 @@
+// This is your Prisma schema file
+// It defines your database structure (tables and relationships)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users table - stores admin users
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         String    @default("admin") // admin or user
+  createdAt    DateTime  @default(now())
+  listings     Listing[]
+}
+
+// Listings table - stores properties (cars, houses, land)
+model Listing {
+  id          String   @id @default(cuid())
+  title       String
+  type        String   // car, land, house
+  price       Float
+  location    String
+  status      String   @default("available") // available or sold
+  description String   @db.Text
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  images      Image[]
+  leads       Lead[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Images table - stores property images
+model Image {
+  id        String  @id @default(cuid())
+  listingId String
+  url       String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+// Leads table - stores customer inquiries
+model Lead {
+  id        String   @id @default(cuid())
+  listingId String
+  name      String
+  email     String
+  phone     String
+  message   String   @db.Text
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  createdAt DateTime @default(now())
+}
