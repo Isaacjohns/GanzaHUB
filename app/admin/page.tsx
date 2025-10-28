@@ -3,10 +3,30 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+interface Listing {
+  id: string;
+  title?: string;
+  type?: string;
+  price?: number;
+  location?: string;
+  status?: 'available' | 'sold' | string;
+  [key: string]: any;
+}
+
+interface Lead {
+  id: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  listing?: { title?: string };
+  createdAt?: string;
+  [key: string]: any;
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
-  const [listings, setListings] = useState([]);
-  const [leads, setLeads] = useState([]);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });

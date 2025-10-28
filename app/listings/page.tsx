@@ -2,8 +2,18 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+interface Listing {
+  id: string;
+  title?: string;
+  type?: string;
+  price?: number;
+  location?: string;
+  status?: 'available' | 'sold' | string;
+  [key: string]: any;
+}
+
 export default function ListingsPage() {
-  const [listings, setListings] = useState([]);
+  const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Filter states
@@ -107,7 +117,7 @@ export default function ListingsPage() {
 
       {!loading && listings.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings.map((listing) => (
+          {listings.map((listing: Listing) => (
             <Link
               key={listing.id}
               href={`/listings/${listing.id}`}
@@ -116,7 +126,7 @@ export default function ListingsPage() {
               <div className="relative h-56 bg-gray-200">
                 {listing.images?.[0] && (
                   <img
-                    src={listing.images[0].url}
+                    src={listing.images?.[0]?.url}
                     alt={listing.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                   />
@@ -144,7 +154,7 @@ export default function ListingsPage() {
                   {listing.location}
                 </p>
                 <p className="text-2xl font-bold text-gold-600">
-                  ${listing.price.toLocaleString()}
+                  {typeof listing.price === 'number' ? `$${listing.price.toLocaleString()}` : '-'}
                 </p>
               </div>
             </Link>

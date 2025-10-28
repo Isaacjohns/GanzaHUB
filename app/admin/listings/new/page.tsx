@@ -3,21 +3,38 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+// --- TYPE DEFINITIONS FOR ENHANCED SAFETY ---
+
 interface Listing {
-  id: string; // Assuming 'id' is a string or number. Adjust if needed.
+  id: string; 
   title: string;
   type: string;
   price: number;
   location: string;
-  status: 'available' | 'sold'; // Enforces specific status values
-  [key: string]: any; // Allows for other properties not explicitly listed
+  status: 'available' | 'sold';
+  [key: string]: any; 
 }
+
+interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  createdAt: string;
+  listing?: {
+    title: string;
+  };
+}
+
+// ---------------------------------------------
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [listings, setListings] = useState<Listing[]>([]); // Note the change from 'any' to 'Listing'
-const [leads, setLeads] = useState<any[]>([]); // Leads can stay 'any[]' for now, or define a Lead interface too
-
+  
+  // State updated with strong types
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -40,8 +57,9 @@ const [leads, setLeads] = useState<any[]>([]); // Leads can stay 'any[]' for now
         fetch('/api/leads'),
       ]);
       
-      const listingsData = await listingsRes.json();
-      const leadsData = await leadsRes.json();
+      // Ensure data is typed correctly upon fetching
+      const listingsData: Listing[] = await listingsRes.json();
+      const leadsData: Lead[] = await leadsRes.json();
       
       setListings(listingsData);
       setLeads(leadsData);
@@ -95,7 +113,8 @@ const [leads, setLeads] = useState<any[]>([]); // Leads can stay 'any[]' for now
       });
 
       if (res.ok) {
-        setListings(listings.filter((l: any) => l.id !== id));
+        // Correctly filter by ID
+        setListings(listings.filter((l) => l.id !== id));
       }
     } catch (error) {
       console.error('Error deleting listing:', error);
@@ -103,7 +122,7 @@ const [leads, setLeads] = useState<any[]>([]); // Leads can stay 'any[]' for now
     }
   };
 
-  const toggleStatus = async (listing: any) => {
+  const toggleStatus = async (listing: Listing) => {
     const newStatus = listing.status === 'available' ? 'sold' : 'available';
 
     try {
@@ -115,7 +134,13 @@ const [leads, setLeads] = useState<any[]>([]); // Leads can stay 'any[]' for now
 
       if (res.ok) {
         const updated = await res.json();
-        setListings(listings.map((l: any) => l.id === listing.id ? updated : l));
+        
+        // Use callback form with prevListings and type assertion
+        setListings(
+          (prevListings) => prevListings.map((l) => 
+            l.id === listing.id ? (updated as Listing) : l
+          )
+        );
       }
     } catch (error) {
       console.error('Error updating status:', error);
@@ -220,13 +245,13 @@ const [leads, setLeads] = useState<any[]>([]); // Leads can stay 'any[]' for now
         <div className="bg-white p-6 rounded-lg shadow-md">
           <p className="text-gray-600 text-sm mb-1">Available</p>
           <p className="text-3xl font-bold text-green-600">
-            {listings.filter((l: any) => l.status === 'available').length}
+            {listings.filter((l) => l.status === 'available').length}
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
           <p className="text-gray-600 text-sm mb-1">Sold</p>
           <p className="text-3xl font-bold text-red-600">
-            {listings.filter((l: any) => l.status === 'sold').length}
+            {listings.filter((l) => l.status === 'sold').length}
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
@@ -265,7 +290,7 @@ const [leads, setLeads] = useState<any[]>([]); // Leads can stay 'any[]' for now
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {listings.map((listing: any) => (
+              {listings.map((listing) => (
                 <tr key={listing.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{listing.title}</div>
@@ -347,7 +372,7 @@ const [leads, setLeads] = useState<any[]>([]); // Leads can stay 'any[]' for now
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {leads.slice(0, 10).map((lead: any) => (
+              {leads.slice(0, 10).map((lead) => (
                 <tr key={lead.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {lead.name}
