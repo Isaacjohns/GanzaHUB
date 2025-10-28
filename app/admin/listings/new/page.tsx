@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 export default function AdminDashboard() {
   const router = useRouter();
   const [listings, setListings] = useState<any[]>([]);
-  const [leads, setLeads] = useState<any[]>([]);
+const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -95,21 +95,26 @@ export default function AdminDashboard() {
   const toggleStatus = async (listing: any) => {
     const newStatus = listing.status === 'available' ? 'sold' : 'available';
     
-    try {
-      const res = await fetch(`/api/listings/${listing.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...listing, status: newStatus }),
-      });
+const toggleStatus = async (listing: any) => {
+  const newStatus = listing.status === 'available' ? 'sold' : 'available';
+  
+  try {
+    const res = await fetch(`/api/listings/${listing.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...listing, status: newStatus }),
+    });
 
-      if (res.ok) {
-        const updated = await res.json();
-        setListings(listings.map((l: any) => l.id === listing.id ? updated : l));
-      }
-    } catch (error) {
-      console.error('Error updating status:', error);
-      alert('Failed to update status');
+    if (res.ok) {
+      const updated = await res.json();
+      const updatedListings = listings.map((l: any) => l.id === listing.id ? updated : l);
+      setListings(updatedListings as any[]);
     }
+  } catch (error) {
+    console.error('Error updating status:', error);
+    alert('Failed to update status');
+  }
+};
   };
 
   // Login Form
