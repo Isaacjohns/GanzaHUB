@@ -3,10 +3,21 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+interface Listing {
+  id: string; // Assuming 'id' is a string or number. Adjust if needed.
+  title: string;
+  type: string;
+  price: number;
+  location: string;
+  status: 'available' | 'sold'; // Enforces specific status values
+  [key: string]: any; // Allows for other properties not explicitly listed
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
-  const [listings, setListings] = useState<any[]>([]);
-  const [leads, setLeads] = useState<any[]>([]);
+  const [listings, setListings] = useState<Listing[]>([]); // Note the change from 'any' to 'Listing'
+const [leads, setLeads] = useState<any[]>([]); // Leads can stay 'any[]' for now, or define a Lead interface too
+
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
